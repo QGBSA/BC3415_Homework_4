@@ -80,7 +80,8 @@
     </div>
     <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.37/dist/web3.min.js"></script>
     <script>
-        const contractAddress = "0x422349628817cb328b8cb09eada8870474038298";
+        // Use the contract_address variable passed from Flask
+        const contractAddress = "{{ contract_address }}";
         const abi = [
             {
                 "inputs": [
