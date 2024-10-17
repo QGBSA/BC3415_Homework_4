@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Money Contract</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        p {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Store Money Contract [Demo]</h1>
+        <div class="form-group">
+            <label for="moneyInput">Enter Amount to Store:</label>
+            <input type="number" id="moneyInput" placeholder="Enter amount">
+            <button onclick="storeMoney()">Store Money</button>
+        </div>
+        <div class="form-group">
+            <button onclick="viewMoney()">View Stored Money</button>
+            <p id="storedMoney">Stored Money: <span id="moneyValue">-</span></p>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.37/dist/web3.min.js"></script>
+    <script>
+        const contractAddress = "0x422349628817cb328b8cb09eada8870474038298";
+        const abi = [
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "num",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "store_m",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "view_m",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            }
+        ];
+
+        let web3;
+        let contract;
+
+        window.onload = async () => {
+            if (window.ethereum) {
+                web3 = new Web3(window.ethereum);
+                await window.ethereum.enable();
+                contract = new web3.eth.Contract(abi, contractAddress);
+            } else {
+                alert("Please install MetaMask to interact with this dApp.");
+            }
+        };
+
+        async function storeMoney() {
+            const amount = document.getElementById('moneyInput').value;
+            const accounts = await web3.eth.getAccounts();
+            contract.methods.store_m(amount).send({ from: accounts[0] })
+                .on('transactionHash', function(hash){
+                    console.log("Transaction Hash: " + hash);
+                })
+                .on('confirmation', function(confirmationNumber, receipt){
+                    console.log("Confirmation Number: " + confirmationNumber);
+                })
+                .on('receipt', function(receipt){
+                    alert("Money stored successfully!");
+                });
+        }
+
+        async function viewMoney() {
+            const value = await contract.methods.view_m().call();
+            document.getElementById('moneyValue').innerText = value;
+        }
+    </script>
+</body>
+</html>
